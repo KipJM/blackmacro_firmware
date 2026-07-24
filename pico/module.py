@@ -1,7 +1,7 @@
 import asyncio
 
 
-class LoopModule:
+class SysModule:
     def __init__(self, delta: float):
         self.delta = delta
         self.loop = asyncio.create_task(self.update_loop())

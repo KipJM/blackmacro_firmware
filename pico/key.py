@@ -1,27 +1,9 @@
 import hardware_defs
-from module import LoopModule
+from button import Button
+from module import SysModule
 from machine import Pin
 
 from reg_encoder import DEF_ENCODERS
-
-
-class Button:
-    def __init(self, name: str, matrix: tuple[int, int]):
-        self.name: str = name
-        self.matrix: tuple[int, int] = matrix
-
-        self.pressed: bool = False
-
-    def is_pressed(self) -> bool:
-        return self.pressed
-
-    def update_pressed(self, pressed: bool):
-        if self.pressed != pressed:
-            # state change
-            # TODO: subscribable events?
-            print(f"{self.name} {pressed}")
-            self.pressed = pressed
-
 
 class Key(Button):
     def __init__(self, name: str, matrix: tuple[int, int], led: int, position: tuple[float, float]):
@@ -69,8 +51,8 @@ MT_ROW_DEMUL: dict[int, tuple[bool, bool, bool]] = {
     6 : ( False , False , False )
 }
 
-# TODO: Key controller
-class KeyMatrix(LoopModule):
+
+class KeyMatrix(SysModule):
     def __init__(self, delta: float = 0.001):
         super().__init__(delta)
         self.matrix: dict[str, Button] = DEF_KEYS.copy()

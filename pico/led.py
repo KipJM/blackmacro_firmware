@@ -4,22 +4,27 @@
 # e.g.: Rainbow background generator -> key state visualization -> key press visualization -> user brightness control -> powersave blackout => output
 import asyncio
 import colorsys
+
 import neopixel
 import machine
 import hardware_defs
-import key
-from module import LoopModule
+from key import Key, DEF_KEYS
+from module import SysModule
 
 
 class LEDLayer:
     def __init__(self):
-        self.layout: dict[str, key.Key] = key.DEF_KEYS
+        self.layout: dict[str, Key] = DEF_KEYS
 
-    def location_lookup(self, index: int) -> tuple[float, float]:
+    def key_lookup(self, led: int) -> Key:
+        return next(key for key in self.layout.values() if key.led == led)
+
+    def location_lookup(self, led: int) -> tuple[float, float]:
         """
         returns estimated physical position of the led[index]: (y,x), origin at bottom left.
         """
-        return next(led.position for led in self.layout.values() if led.led == index)
+        return self.key_lookup(led).position
+
 
     def process(self, data: list[tuple[int, int, int]], delta: float) -> list[tuple[int, int, int]]:
         """
@@ -54,28 +59,39 @@ class RainbowGenerator(LEDLayer):
     def process(self, data: list[tuple[int, int, int]], delta: float) -> list[tuple[int, int, int]]:
         self.t += delta * self.speed
 
-        for idx, led in enumerate(data):
+        for idx, rgb in enumerate(data):
             loc = self.location_lookup(idx)
-            led = self.t_to_rgb((float(loc[0] + loc[1] + self.t) * self.scale/10) % 1.0)
+            rgb = self.t_to_rgb((float(loc[0] + loc[1] + self.t) * self.scale/10) % 1.0)
 
-            data[idx] = led
+            data[idx] = rgb
 
         return data
 
+class KeyImmediateVisualizationFX(LEDLayer):
+    def __init__(self, press_color: tuple[int, int, int]):
+        super().__init__()
+        self.press_color: tuple[int, int, int] = press_color
 
-class BrightnessControl(LEDLayer):
+    def process(self, data: list[tuple[int, int, int]], delta: float) -> list[tuple[int, int, int]]:
+        for idx, rgb in enumerate(data):
+            if self.key_lookup(idx).is_pressed():
+                data[idx] = self.press_color
+        return data
+
+
+class BrightnessControlFX(LEDLayer):
     def __init__(self, brightness: float):
         super().__init__()
         self.brightness = brightness
 
     def process(self, data: list[tuple[int, int, int]], delta: float) -> list[tuple[int, int, int]]:
+        print(self.brightness)
         for idx, led in enumerate(data):
             data[idx] = (int(led[0] * self.brightness), int(led[1] * self.brightness), int(led[2] * self.brightness))
-
         return data
 # =====
 
-class LEDController(LoopModule):
+class LEDController(SysModule):
     def __init__(self, delta: float = 0.02, layers=None):
         super().__init__(delta)
         if layers is None:
@@ -88,6 +104,9 @@ class LEDController(LoopModule):
         data: list[tuple[int, int, int]] = [(0,0,0) for i in range(hardware_defs.COUNT_LED)]
         for layer in self.layers:
             data = layer.process(data, self.delta)
+
+        # clamp to max brightness :(
+        data = [(min(255, pix[0]), min(255, pix[1]), min(255, pix[2])) for pix in data]
 
         # push to leds
         self.leds.fill((0,0,0))
