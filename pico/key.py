@@ -3,37 +3,50 @@ from module import LoopModule
 from machine import Pin
 
 class Key:
-    def __init__(self, matrix: tuple[int, int], led: int, position: tuple[float, float]):
+    def __init__(self, name: str, matrix: tuple[int, int], led: int, position: tuple[float, float]):
+        self.name: str = name
         self.matrix: tuple[int, int] = matrix
         self.led: int = led
         self.position: tuple[float, float] = position
+
+        self.pressed: bool = False
+
+    def is_pressed(self) -> bool:
+        return self.pressed
+
+    def update_pressed(self, pressed: bool):
+        if self.pressed != pressed:
+            # state change
+            # TODO: subscribable events?
+            print(f"{self.name} {pressed}")
+            self.pressed = pressed
 
 ### KEY DEFS
 # Keyname: matrix(row 1-index, column 1-index), led 0-index, physical position(y,x, float, origin at bottom left, gaps considered)
 
 # MOD key is not included. if you wanna deal with that write your own firmware
 DEF_KEYS: dict[str, Key] = {
-    "LA1" : Key((1,1), 1,  (4,0.5)),
-    "LA2" : Key((1,3), 0,  (4,2.5)),
-    "LB1" : Key((2,1), 5,  (3,0)),
-    "LB2" : Key((2,2), 4,  (3,1)),
-    "LB3" : Key((2,3), 3,  (3,2)),
-    "LB4" : Key((2,4), 2,  (3,3)),
-    "LC1" : Key((3,1), 9,  (2,0)),
-    "LC2" : Key((3,2), 8,  (2,1)),
-    "LC3" : Key((3,3), 7,  (2,2)),
-    "LC4" : Key((3,4), 6,  (2,3)),
-    "LD1" : Key((4,1), 13, (1,0)),
-    "LD2" : Key((4,2), 12, (1,1)),
-    "LD3" : Key((4,3), 11, (1,2)),
-    "LD4" : Key((4,4), 10, (1,3)),
-    "LE1" : Key((5,1), 15, (0,0)),
-    "LE2" : Key((5,2), 14, (0,2)),
-    "RA1" : Key((5,3), 20, (5,4.25)),
-    "RA2" : Key((5,4), 19, (5,5.75)),
-    "RB1" : Key((6,1), 18, (4,4)),
-    "RB2" : Key((6,2), 17, (4,5)),
-    "RB3" : Key((6,3), 16, (4,6))
+    "LA1" : Key("LA1", (1,1), 1,  (4,0.5)),
+    "LA2" : Key("LA2", (1,3), 0,  (4,2.5)),
+    "LB1" : Key("LB1", (2,1), 5,  (3,0)),
+    "LB2" : Key("LB2", (2,2), 4,  (3,1)),
+    "LB3" : Key("LB3", (2,3), 3,  (3,2)),
+    "LB4" : Key("LB4", (2,4), 2,  (3,3)),
+    "LC1" : Key("LC1", (3,1), 9,  (2,0)),
+    "LC2" : Key("LC2", (3,2), 8,  (2,1)),
+    "LC3" : Key("LC3", (3,3), 7,  (2,2)),
+    "LC4" : Key("LC4", (3,4), 6,  (2,3)),
+    "LD1" : Key("LD1", (4,1), 13, (1,0)),
+    "LD2" : Key("LD2", (4,2), 12, (1,1)),
+    "LD3" : Key("LD3", (4,3), 11, (1,2)),
+    "LD4" : Key("LD4", (4,4), 10, (1,3)),
+    "LE1" : Key("LE1", (5,1), 15, (0,0)),
+    "LE2" : Key("LE2", (5,2), 14, (0,2)),
+    "RA1" : Key("RA1", (5,3), 20, (5,4.25)),
+    "RA2" : Key("RA2", (5,4), 19, (5,5.75)),
+    "RB1" : Key("RB1", (6,1), 18, (4,4)),
+    "RB2" : Key("RB2", (6,2), 17, (4,5)),
+    "RB3" : Key("RB3", (6,3), 16, (4,6))
 }
 
 
@@ -67,10 +80,19 @@ class KeyMatrix(LoopModule):
             Pin(hardware_defs.P_MT_COL4, Pin.IN)  # External pull-down, internal is borked :(
         ]
 
+        self.matrix_lookup: dict[tuple[int, int], Key] = {k.matrix: k for k in self.matrix.values()}
+
+
     def update(self):
         for row, signals in MT_ROW_DEMUL.items():
+            # update row
             for idx, signal in enumerate(signals):
                 self.row_controls[idx].value(signal)
 
-            col_vals = [col.value() for col in self.col_inputs]
-            print(f"{row}: {col_vals}")
+            # read cols
+            for idx, inp in enumerate(self.col_inputs):
+                val = bool(inp.value())
+
+                # prevent 6,4 mod input errors
+                if (row, idx+1) in self.matrix_lookup:
+                    self.matrix_lookup[(row, idx+1)].update_pressed(val)
