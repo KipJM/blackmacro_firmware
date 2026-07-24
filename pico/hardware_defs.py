@@ -51,9 +51,4 @@ P_MOTR_WL = 11; " Output, PWM "
 P_MOTR_VIO  = 27; " Output "
 P_MOTR_DIAG = 28; " Input "
 
-## ENCODERS
-# (row, column)
-K_RENC1 = (1, 2)
-K_RENC2 = (1, 4)
-
 # mod is not included. if you wanna deal with that write your own firmware lol

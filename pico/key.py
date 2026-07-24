@@ -2,12 +2,13 @@ import hardware_defs
 from module import LoopModule
 from machine import Pin
 
-class Key:
-    def __init__(self, name: str, matrix: tuple[int, int], led: int, position: tuple[float, float]):
+from reg_encoder import DEF_ENCODERS
+
+
+class Button:
+    def __init(self, name: str, matrix: tuple[int, int]):
         self.name: str = name
         self.matrix: tuple[int, int] = matrix
-        self.led: int = led
-        self.position: tuple[float, float] = position
 
         self.pressed: bool = False
 
@@ -20,6 +21,14 @@ class Key:
             # TODO: subscribable events?
             print(f"{self.name} {pressed}")
             self.pressed = pressed
+
+
+class Key(Button):
+    def __init__(self, name: str, matrix: tuple[int, int], led: int, position: tuple[float, float]):
+        super().__init__(name, matrix)
+        self.led: int = led
+        self.position: tuple[float, float] = position
+
 
 ### KEY DEFS
 # Keyname: matrix(row 1-index, column 1-index), led 0-index, physical position(y,x, float, origin at bottom left, gaps considered)
@@ -49,7 +58,6 @@ DEF_KEYS: dict[str, Key] = {
     "RB3" : Key("RB3", (6,3), 16, (4,6))
 }
 
-
 # implement mod 1 and 2 yourself
 # row (not demul output): demul input
 MT_ROW_DEMUL: dict[int, tuple[bool, bool, bool]] = {
@@ -65,7 +73,8 @@ MT_ROW_DEMUL: dict[int, tuple[bool, bool, bool]] = {
 class KeyMatrix(LoopModule):
     def __init__(self, delta: float = 0.001):
         super().__init__(delta)
-        self.matrix = DEF_KEYS
+        self.matrix: dict[str, Button] = DEF_KEYS.copy()
+        self.matrix.update(DEF_ENCODERS) # add encoders, this is bad but should work
 
         self.row_controls = [
             Pin(hardware_defs.P_MT_CTRL1, Pin.OUT, Pin.PULL_DOWN),
@@ -80,7 +89,7 @@ class KeyMatrix(LoopModule):
             Pin(hardware_defs.P_MT_COL4, Pin.IN)  # External pull-down, internal is borked :(
         ]
 
-        self.matrix_lookup: dict[tuple[int, int], Key] = {k.matrix: k for k in self.matrix.values()}
+        self.matrix_lookup: dict[tuple[int, int], Button] = {k.matrix: k for k in self.matrix.values()}
 
 
     def update(self):
@@ -96,3 +105,4 @@ class KeyMatrix(LoopModule):
                 # prevent 6,4 mod input errors
                 if (row, idx+1) in self.matrix_lookup:
                     self.matrix_lookup[(row, idx+1)].update_pressed(val)
+
