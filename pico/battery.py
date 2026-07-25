@@ -15,7 +15,7 @@ class BatteryCharger(SysModule):
         self.is_usb_connected: bool = False
         self.is_charging: bool = False
 
-    def update(self):
+    async def update(self):
         self.is_usb_connected = bool(self.vbus_detect.value())
         self.is_charging = not bool(self.charge_signal.value())
         # print(self.is_usb_connected, self.is_charging)
@@ -33,6 +33,6 @@ class BatteryMonitor(SysModule):
     def __init__(self, delta: float = 5):
         super().__init__(delta)
 
-    def update(self):
+    async def update(self):
         # TODO
         pass

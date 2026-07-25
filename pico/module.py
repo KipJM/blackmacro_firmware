@@ -8,8 +8,8 @@ class SysModule:
 
     async def update_loop(self):
         while True:
-            self.update()
+            await self.update()
             await asyncio.sleep(self.delta)
 
-    def update(self):
+    async def update(self):
         pass

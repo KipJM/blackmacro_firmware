@@ -7,6 +7,9 @@ import reg_encoder
 from module import SysModule
 
 
+### THIS IS NOW NAMED MAIN!!!!!
+### DO NOT ADD USB CONTROL CODE HERE OR I WILL KILL YOU!!
+
 async def main():
     modules: list[SysModule] = []
 
@@ -15,12 +18,12 @@ async def main():
     key_controller = key.KeyMatrix()
     modules.append(key_controller)
 
-    brightness_control = led.BrightnessControlFX(0.05)
+    brightness_control = led.BrightnessControlFX(0.1)
 
     led_controller = led.LEDController(
         layers=[
             led.RainbowGenerator(),
-            led.KeyImmediateVisualizationFX([99999,99999,99999]), # yes you can have hdr lol its python datatypes are a myth
+            led.KeyImmediateVisualizationFX((99999,99999,99999)), # yes you can have hdr lol its python datatypes are a myth
             brightness_control
         ]
     )

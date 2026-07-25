@@ -2,6 +2,11 @@
   <dictionary name="project">
     <words>
       <w>Blackmacro</w>
+      <w>CHRG</w>
+      <w>PWRSAVE</w>
+      <w>RENC</w>
+      <w>demul</w>
+      <w>vbus</w>
     </words>
   </dictionary>
 </component>

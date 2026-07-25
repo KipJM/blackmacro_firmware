@@ -74,7 +74,7 @@ class KeyMatrix(SysModule):
         self.matrix_lookup: dict[tuple[int, int], Button] = {k.matrix: k for k in self.matrix.values()}
 
 
-    def update(self):
+    async def update(self):
         for row, signals in MT_ROW_DEMUL.items():
             # update row
             for idx, signal in enumerate(signals):
