@@ -80,12 +80,16 @@ class KeyImmediateVisualizationFX(LEDLayer):
 
 
 class BrightnessControlFX(LEDLayer):
-    def __init__(self, brightness: float):
+    def __init__(self, brightness: float, gamma: float = 4):
         super().__init__()
         self.brightness = brightness
+        self.gamma = gamma
+
+    def change_brightness_gamma(self, value: float):
+        self.brightness = (value**self.gamma) * (1 ** -self.gamma)
 
     def process(self, data: list[tuple[int, int, int]], delta: float) -> list[tuple[int, int, int]]:
-        print(self.brightness)
+        # print(self.brightness)
         for idx, led in enumerate(data):
             data[idx] = (int(led[0] * self.brightness), int(led[1] * self.brightness), int(led[2] * self.brightness))
         return data

@@ -1,9 +1,12 @@
 import asyncio
 
+from machine import I2C
+
 import battery
 import key
 import led
 import reg_encoder
+from hardware_defs import *
 from module import SysModule
 
 
@@ -29,14 +32,18 @@ async def main():
     )
     modules.append(led_controller)
 
-    charger = battery.BatteryCharger()
-    modules.append(charger)
+    bat_charger = battery.BatteryCharger()
+    modules.append(bat_charger)
+
+    i2c = I2C(ID_I2C, scl=P_I2C_SCL, sda=P_I2C_SDA, freq=I2C_FREQ, timeout=I2C_TIMEOUT)
+    bat_monitor = battery.BatteryMonitor(i2c)
+    modules.append(bat_monitor)
 
     # ===
 
     def change_brightness(value: int):
         print(":O")
-        brightness_control.brightness = max(0.0, min(1.0, float(value) / 200.0))
+        brightness_control.change_brightness_gamma(max(0.0, min(3.0, float(value) / 200.0)))
 
     reg_encoder.DEF_ENCODERS["RENC1"].add_change_callback(change_brightness)
 
