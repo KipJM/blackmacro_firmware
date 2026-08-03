@@ -11,7 +11,7 @@ from module import SysModule
 
 
 ### THIS IS NOW NAMED MAIN!!!!!
-### DO NOT ADD USB CONTROL CODE HERE OR I WILL KILL YOU!!
+### DO NOT ADD USB CONTROL CODE HERE OR I WILL KILL YOU!! - past me
 
 async def main():
     modules: list[SysModule] = []
@@ -26,8 +26,8 @@ async def main():
     led_controller = led.LEDController(
         layers=[
             led.RainbowGenerator(),
-            led.KeyImmediateVisualizationFX((99999,99999,99999)), # yes you can have hdr lol its python datatypes are a myth
-            brightness_control
+            brightness_control,
+            led.KeyImmediateVisualizationFX((99999, 99999, 99999)), # yes you can have hdr lol its python datatypes are a myth
         ]
     )
     modules.append(led_controller)

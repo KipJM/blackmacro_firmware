@@ -73,8 +73,14 @@ class KeyMatrix(SysModule):
 
         self.matrix_lookup: dict[tuple[int, int], Button] = {k.matrix: k for k in self.matrix.values()}
 
+        self.update_callbacks = []
+
+    def register_update_callback(self, callback):
+        self.update_callbacks.append(callback)
 
     async def update(self):
+        down_update: list[Button] = []
+        up_update: list[Button] = []
         for row, signals in MT_ROW_DEMUL.items():
             # update row
             for idx, signal in enumerate(signals):
@@ -86,5 +92,14 @@ class KeyMatrix(SysModule):
 
                 # prevent 6,4 mod input errors
                 if (row, idx+1) in self.matrix_lookup:
-                    self.matrix_lookup[(row, idx+1)].update_pressed(val)
+                    key = self.matrix_lookup[(row, idx+1)]
+                    if key.update_pressed(val):
+                        if key.is_pressed():
+                            down_update.append(key)
+                        else:
+                            up_update.append(key)
 
+        if len(down_update) + len(up_update) > 0:
+            # notify callback
+            for callback in self.update_callbacks:
+                callback(self, down_update, up_update)

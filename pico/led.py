@@ -80,10 +80,17 @@ class KeyImmediateVisualizationFX(LEDLayer):
 
 
 class BrightnessControlFX(LEDLayer):
-    def __init__(self, brightness: float, gamma: float = 4):
+    def __init__(self, brightness: float, gamma: float = 4, clamp: bool = True):
+        """
+        :param brightness: If clamp == True, this is the maximum brightness (255 * brightness) max component of an led can be. Values will be scaled proportionally.
+        Otherwise, the leds\' values will simply be multiplied by this factor.
+        :param gamma: Default 4. Defines curve for perceived brightness adjustment.
+        :param clamp:
+        """
         super().__init__()
         self.brightness = brightness
         self.gamma = gamma
+        self.clamp = clamp
 
     def change_brightness_gamma(self, value: float):
         self.brightness = (value**self.gamma) * (1 ** -self.gamma)
@@ -91,7 +98,13 @@ class BrightnessControlFX(LEDLayer):
     def process(self, data: list[tuple[int, int, int]], delta: float) -> list[tuple[int, int, int]]:
         # print(self.brightness)
         for idx, led in enumerate(data):
-            data[idx] = (int(led[0] * self.brightness), int(led[1] * self.brightness), int(led[2] * self.brightness))
+            if self.clamp:
+                factor = (self.brightness * 255) / max(led[0], led[1], led[2])
+                data[idx] = (int(led[0] * factor), int(led[1] * factor),
+                             int(led[2] * factor))
+            else:
+                data[idx] = (int(led[0] * self.brightness), int(led[1] * self.brightness), int(led[2] * self.brightness))
+
         return data
 # =====
 
