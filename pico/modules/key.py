@@ -100,6 +100,7 @@ class KeyMatrix(SysModule):
                             up_update.append(key)
 
         if len(down_update) + len(up_update) > 0:
+            # print("ASD")
             # notify callback
             for callback in self.update_callbacks:
                 callback(self, down_update, up_update)

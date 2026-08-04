@@ -8,7 +8,7 @@ import colorsys
 import neopixel
 import machine
 import hardware_defs
-from key import Key, DEF_KEYS
+from modules.key import Key, DEF_KEYS
 from module import SysModule
 
 

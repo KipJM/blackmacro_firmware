@@ -32,10 +32,19 @@ I2C_FREQ    = const(400000     )
 I2C_TIMEOUT = const(2000 * 1000) # microseconds
 
 ## MagEnc
-ID_MAG_SSI = const(0 )
-P_MAG_DO   = const(16)
-P_MAG_CSN  = const(17)
-P_MAG_CLK  = const(18)
+ID_MAG_SSI   = const(0      )
+P_MAG_DO     = const(16     )
+P_MAG_CSN    = const(17     )
+P_MAG_CLK    = const(18     )
+MAG_SSI_FREQ = const(1000000) # Default 1MHz, max 8MHz
+MAG_SSI_CPOL = const(1      ) # clock idle high
+MAG_SSI_CPHA = const(0      ) # data sampled at falling edge
+
+MSK_MAG_ANGL  = const(0b111111111111110000000000) ; SHFT_MAG_ANGL  = 10
+MSK_MAG_FIELD = const(0b000000000000001100000000) ; SHFT_MAG_FIELD = 8
+MSK_MAG_PUSH  = const(0b000000000000000010000000) ; SHFT_MAG_PUSH  = 7
+MSK_MAG_STAT  = const(0b000000000000000001000000) ; SHFT_MAG_STAT  = 6
+MSK_MAG_CHECK = const(0b000000000000000000111111) ; SHFT_MAG_CHECK = 0
 
 ## LED
 P_LED     = const(26); " Output, NeoPixel "
@@ -63,3 +72,7 @@ BATTERY_CAPACITY          = const(6000                )
 BATTERY_ENERGY            = int(BATTERY_CAPACITY * 3.7) # mWh, can't be made constant
 BATTERY_TERMINATE_VOLTAGE = const(3000                )
 BATTERY_TAPER_CURRENT     = const(1200 * 0.1          ) # HTP4056: 1.2A max charging, CV stops at 0.1 of charging current
+
+
+# === HID EMULATION ===
+HID_TIMEOUT = 10 # ms, max blocking time for hid send report

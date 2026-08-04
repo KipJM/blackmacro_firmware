@@ -1,4 +1,5 @@
 import asyncio
+import sys
 
 
 class SysModule:
@@ -8,7 +9,17 @@ class SysModule:
 
     async def update_loop(self):
         while True:
-            await self.update()
+            try:
+                await self.update()
+            except Exception as e:
+                print()
+                print("========== SYSMODULE CRASH =========")
+                print(f"=== MODULE: {self.__class__.__name__} ===")
+                print(e)
+                sys.print_exception(e)
+                print("====================================")
+                print()
+                return
             await asyncio.sleep(self.delta)
 
     async def update(self):

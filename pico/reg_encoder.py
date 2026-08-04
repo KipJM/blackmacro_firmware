@@ -25,11 +25,11 @@ class Encoder(Button):
 
         self.encoder.add_listener(self.encoder_change_handler)
 
-        self.change_callbacks = []
+        self.rot_callbacks = []
 
 
-    def add_change_callback(self, callback):
-        self.change_callbacks.append(callback)
+    def register_rot_callback(self, callback):
+        self.rot_callbacks.append(callback)
 
     def encoder_change_handler(self):
         if self.encoder.value() > self.last_encoder_value:
@@ -37,7 +37,7 @@ class Encoder(Button):
         else:
             self.rot_counterclockwise()
 
-        for callback in self.change_callbacks:
+        for callback in self.rot_callbacks:
             callback(self.encoder.value())
 
         self.last_encoder_value = self.encoder.value()
