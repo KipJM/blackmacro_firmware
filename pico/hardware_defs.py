@@ -32,6 +32,8 @@ I2C_FREQ    = const(400000     )
 I2C_TIMEOUT = const(2000 * 1000) # microseconds
 
 ## MagEnc
+MAG_ANGLE_ZEROPOINT = const(113) # angle 0 deg will start here
+
 ID_MAG_SSI   = const(0      )
 P_MAG_DO     = const(16     )
 P_MAG_CSN    = const(17     )
@@ -41,10 +43,12 @@ MAG_SSI_CPOL = const(1      ) # clock idle high
 MAG_SSI_CPHA = const(0      ) # data sampled at falling edge
 
 MSK_MAG_ANGL  = const(0b111111111111110000000000) ; SHFT_MAG_ANGL  = 10
-MSK_MAG_FIELD = const(0b000000000000001100000000) ; SHFT_MAG_FIELD = 8
-MSK_MAG_PUSH  = const(0b000000000000000010000000) ; SHFT_MAG_PUSH  = 7
-MSK_MAG_STAT  = const(0b000000000000000001000000) ; SHFT_MAG_STAT  = 6
+MSK_MAG_FIELD = const(0b000000000000000011000000) ; SHFT_MAG_FIELD = 6
+MSK_MAG_PUSH  = const(0b000000000000000100000000) ; SHFT_MAG_PUSH  = 8
+MSK_MAG_SPEED = const(0b000000000000001000000000) ; SHFT_MAG_SPEED = 9
 MSK_MAG_CHECK = const(0b000000000000000000111111) ; SHFT_MAG_CHECK = 0
+
+MAG_CRC_POLY = const(0b1000011)
 
 ## LED
 P_LED     = const(26); " Output, NeoPixel "
