@@ -24,3 +24,14 @@ class SysModule:
 
     async def update(self):
         pass
+
+class Subscribable:
+    def init_subscribable(self):
+        self.update_handlers = []
+
+    def register_update_handler(self, handler):
+        self.update_handlers.append(handler)
+
+    def notify_update_handlers(self):
+        for handler in self.update_handlers:
+            handler(self)

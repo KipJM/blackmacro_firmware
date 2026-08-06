@@ -11,6 +11,14 @@ import hardware_defs
 from modules.key import Key, DEF_KEYS
 from module import SysModule
 
+def tuple_mult(tup: tuple[float, float, float], val: float) -> tuple[float, float, float]:
+    return tup[0] * val, tup[1] * val, tup[2] * val
+
+def tuple_int(tup: tuple[float, float, float]) -> tuple[int, int, int]:
+    return int(tup[0]), int(tup[1]), int(tup[2])
+
+def tuple_add(tup1: tuple[float, float, float], tup2: tuple[float, float, float]) -> tuple[float, float, float]:
+    return tup1[0] + tup2[0], tup1[1] + tup2[1], tup1[2] + tup2[2]
 
 class LEDLayer:
     def __init__(self):
@@ -78,6 +86,32 @@ class KeyImmediateVisualizationFX(LEDLayer):
                 data[idx] = self.press_color
         return data
 
+class KeyFadeVisualizationFX(LEDLayer):
+    def __init__(self, press_color: tuple[int, int, int], fade_s: float):
+        super().__init__()
+        self.press_color: tuple[int, int, int] = press_color
+        self.fade_s: float = fade_s
+
+        self.timers: dict[int, float] = {}
+
+    def process(self, data: list[tuple[int, int, int]], delta: float) -> list[tuple[int, int, int]]:
+        for idx, rgb in enumerate(data):
+            if idx not in self.timers:
+                self.timers[idx] = 0
+
+            if self.key_lookup(idx).is_pressed():
+                self.timers[idx] = self.fade_s
+
+            p = self.timers[idx] / self.fade_s
+
+            data[idx] = tuple_int(tuple_add(tuple_mult(self.press_color, p), tuple_mult(rgb, 1-p)))
+
+            self.timers[idx] -= delta
+            if self.timers[idx] < 0:
+                self.timers[idx] = 0
+
+        return data
+
 
 class BrightnessControlFX(LEDLayer):
     def __init__(self, brightness: float, gamma: float = 4, clamp: bool = True):
@@ -109,17 +143,29 @@ class BrightnessControlFX(LEDLayer):
 # =====
 
 class LEDController(SysModule):
-    def __init__(self, delta: float = 0.02, layers=None):
+    def __init__(self, delta: float = 0.02, layers=None, sys_layers=None):
+        """
+
+        :param delta:
+        :param layers: User-controllable led layer stack
+        :param sys_layers: Immutable system led layer stack (universal brightness control + power saving)
+        """
         super().__init__(delta)
         if layers is None:
             layers = []
+        if sys_layers is None:
+            sys_layers = []
         self.layers: list[LEDLayer] = layers
+        self.sys_layers: list[LEDLayer] = sys_layers
         self.pin = machine.Pin(hardware_defs.P_LED, machine.Pin.OUT)
         self.leds = neopixel.NeoPixel(self.pin, hardware_defs.COUNT_LED)
 
     async def update(self):
         data: list[tuple[int, int, int]] = [(0,0,0) for i in range(hardware_defs.COUNT_LED)]
+
         for layer in self.layers:
+            data = layer.process(data, self.delta)
+        for layer in self.sys_layers:
             data = layer.process(data, self.delta)
 
         # clamp to max brightness :(

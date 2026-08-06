@@ -7,27 +7,32 @@ from machine import Pin, I2C
 from BQ27427 import BQ27427
 from BQ27427h import *
 
-from module import SysModule
+from module import SysModule, Subscribable
 from hardware_defs import *
 
 # TP4056 charge pin monitor
-class BatteryCharger(SysModule):
+class BatteryCharger(SysModule, Subscribable):
     def __init__(self, delta: float = 1.0):
         super().__init__(delta)
+        super().init_subscribable()
+
         self.charge_signal = Pin(P_CHRG, Pin.IN, Pin.PULL_UP)
         self.vbus_detect = Pin(P_VBUS, Pin.IN)
 
-        self.debug_led = Pin("LED", Pin.OUT) # TODO: remove later
+        # self.debug_led = Pin("LED", Pin.OUT) # DEBUG
 
         self.is_usb_connected: bool = False
         self.is_charging: bool = False
 
     async def update(self):
+        is_usb_connected_past = self.is_usb_connected
+        is_charging_past = self.is_charging
+
         self.is_usb_connected = bool(self.vbus_detect.value())
         self.is_charging = not bool(self.charge_signal.value())
-        # print(self.is_usb_connected, self.is_charging)
 
-        self.debug_led.value(self.is_charging) # TODO: remove later
+        if self.is_usb_connected != is_usb_connected_past or self.is_charging != is_charging_past:
+            self.notify_update_handlers()
 
     def get_is_usb_connected(self):
         return self.is_usb_connected
@@ -36,11 +41,12 @@ class BatteryCharger(SysModule):
         return self.is_charging
 
 
-
 # TI battery fuel gauge controller
-class BatteryMonitor(SysModule):
+class BatteryMonitor(SysModule, Subscribable):
     def __init__(self, i2c: I2C, delta: float = 5.0):
         super().__init__(delta)
+        super().init_subscribable()
+
         self.battery = BQ27427(i2c, seal_flag=True)
 
         self.soc: int = 0 # out of 100
@@ -73,16 +79,25 @@ class BatteryMonitor(SysModule):
 
 
     async def update(self):
+        past_soc = self.soc
         self.soc = self.battery.get_soc(SocMeasure.FILTERED)
         self.soh = self.battery.get_soh(SohMeasure.PERCENT)
         self.current = self.battery.get_current(CurrentMeasure.AVG)
         self.power = self.battery.get_avg_power()
 
-        if self.current <= 0:
-            self.estimated_ttl = timedelta(hours = float(await self.battery.get_capacity(CapacityMeasure.REMAIN)) / -self.current)
-        else:
-            # When charging, change to very rough estimate on time to full
-            self.estimated_ttl = timedelta(hours = float(await self.battery.get_capacity(CapacityMeasure.FULL) -
-                                                         await self.battery.get_capacity(CapacityMeasure.REMAIN)) / self.current)
+        try:
+            if self.current <= 0:
+                self.estimated_ttl = timedelta(hours = float(await self.battery.get_capacity(CapacityMeasure.REMAIN)) / -self.current)
+            else:
+                # When charging, change to very rough estimate on time to full
+                self.estimated_ttl = timedelta(hours = float(await self.battery.get_capacity(CapacityMeasure.FULL) -
+                                                             await self.battery.get_capacity(CapacityMeasure.REMAIN)) / self.current)
+        except ZeroDivisionError:
+            self.estimated_ttl = timedelta(days = 365)
 
+        # DEBUG
         print(f"BAT: SOC: {self.soc}%, Current: {self.current/1000}A, Power: {self.power/1000}W, Estimated TTL: {self.estimated_ttl}")
+
+        if past_soc != self.soc:
+            self.notify_update_handlers()
+

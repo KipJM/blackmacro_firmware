@@ -1,4 +1,4 @@
-import hardware_defs
+from hardware_defs import *
 from button import Button
 from module import SysModule
 from machine import Pin
@@ -17,27 +17,27 @@ class Key(Button):
 
 # MOD key is not included. if you wanna deal with that write your own firmware
 DEF_KEYS: dict[str, Key] = {
-    "LA1" : Key("LA1", (1,1), 1,  (4,0.5)),
-    "LA2" : Key("LA2", (1,3), 0,  (4,2.5)),
-    "LB1" : Key("LB1", (2,1), 5,  (3,0)),
-    "LB2" : Key("LB2", (2,2), 4,  (3,1)),
-    "LB3" : Key("LB3", (2,3), 3,  (3,2)),
-    "LB4" : Key("LB4", (2,4), 2,  (3,3)),
-    "LC1" : Key("LC1", (3,1), 9,  (2,0)),
-    "LC2" : Key("LC2", (3,2), 8,  (2,1)),
-    "LC3" : Key("LC3", (3,3), 7,  (2,2)),
-    "LC4" : Key("LC4", (3,4), 6,  (2,3)),
-    "LD1" : Key("LD1", (4,1), 13, (1,0)),
-    "LD2" : Key("LD2", (4,2), 12, (1,1)),
-    "LD3" : Key("LD3", (4,3), 11, (1,2)),
-    "LD4" : Key("LD4", (4,4), 10, (1,3)),
-    "LE1" : Key("LE1", (5,1), 15, (0,0)),
-    "LE2" : Key("LE2", (5,2), 14, (0,2)),
-    "RA1" : Key("RA1", (5,3), 20, (5,4.25)),
-    "RA2" : Key("RA2", (5,4), 19, (5,5.75)),
-    "RB1" : Key("RB1", (6,1), 18, (4,4)),
-    "RB2" : Key("RB2", (6,2), 17, (4,5)),
-    "RB3" : Key("RB3", (6,3), 16, (4,6))
+    K_LA1 : Key(K_LA1, (1,1), 1,  (4,0.5)),
+    K_LA2 : Key(K_LA2, (1,3), 0,  (4,2.5)),
+    K_LB1 : Key(K_LB1, (2,1), 5,  (3,0)),
+    K_LB2 : Key(K_LB2, (2,2), 4,  (3,1)),
+    K_LB3 : Key(K_LB3, (2,3), 3,  (3,2)),
+    K_LB4 : Key(K_LB4, (2,4), 2,  (3,3)),
+    K_LC1 : Key(K_LC1, (3,1), 9,  (2,0)),
+    K_LC2 : Key(K_LC2, (3,2), 8,  (2,1)),
+    K_LC3 : Key(K_LC3, (3,3), 7,  (2,2)),
+    K_LC4 : Key(K_LC4, (3,4), 6,  (2,3)),
+    K_LD1 : Key(K_LD1, (4,1), 13, (1,0)),
+    K_LD2 : Key(K_LD2, (4,2), 12, (1,1)),
+    K_LD3 : Key(K_LD3, (4,3), 11, (1,2)),
+    K_LD4 : Key(K_LD4, (4,4), 10, (1,3)),
+    K_LE1 : Key(K_LE1, (5,1), 15, (0,0)),
+    K_LE2 : Key(K_LE2, (5,2), 14, (0,2)),
+    K_RA1 : Key(K_RA1, (5,3), 20, (5,4.25)),
+    K_RA2 : Key(K_RA2, (5,4), 19, (5,5.75)),
+    K_RB1 : Key(K_RB1, (6,1), 18, (4,4)),
+    K_RB2 : Key(K_RB2, (6,2), 17, (4,5)),
+    K_RB3 : Key(K_RB3, (6,3), 16, (4,6))
 }
 
 # implement mod 1 and 2 yourself
@@ -59,16 +59,16 @@ class KeyMatrix(SysModule):
         self.matrix.update(DEF_ENCODERS) # add encoders, this is bad but should work
 
         self.row_controls = [
-            Pin(hardware_defs.P_MT_CTRL1, Pin.OUT, Pin.PULL_DOWN),
-            Pin(hardware_defs.P_MT_CTRL2, Pin.OUT, Pin.PULL_DOWN),
-            Pin(hardware_defs.P_MT_CTRL3, Pin.OUT, Pin.PULL_DOWN)
+            Pin(P_MT_CTRL1, Pin.OUT, Pin.PULL_DOWN),
+            Pin(P_MT_CTRL2, Pin.OUT, Pin.PULL_DOWN),
+            Pin(P_MT_CTRL3, Pin.OUT, Pin.PULL_DOWN)
         ]
 
         self.col_inputs = [
-            Pin(hardware_defs.P_MT_COL1, Pin.IN), # External pull-down, internal is borked :(
-            Pin(hardware_defs.P_MT_COL2, Pin.IN), # External pull-down, internal is borked :(
-            Pin(hardware_defs.P_MT_COL3, Pin.IN), # External pull-down, internal is borked :(
-            Pin(hardware_defs.P_MT_COL4, Pin.IN)  # External pull-down, internal is borked :(
+            Pin(P_MT_COL1, Pin.IN), # External pull-down, internal is borked :(
+            Pin(P_MT_COL2, Pin.IN), # External pull-down, internal is borked :(
+            Pin(P_MT_COL3, Pin.IN), # External pull-down, internal is borked :(
+            Pin(P_MT_COL4, Pin.IN)  # External pull-down, internal is borked :(
         ]
 
         self.matrix_lookup: dict[tuple[int, int], Button] = {k.matrix: k for k in self.matrix.values()}

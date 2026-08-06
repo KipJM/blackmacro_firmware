@@ -26,7 +26,10 @@ class DialEncoder(SysModule):
         self.tracking_lost: bool = False # technically "too fast" in datasheet???
 
         # self.data_valid: bool = True # False if checksum fails for this frame
+        self.update_handlers = []
 
+    def register_update_handler(self, update_handler):
+        self.update_handlers.append(update_handler)
 
     def read(self):
         self.cs.value(0)
@@ -60,6 +63,10 @@ class DialEncoder(SysModule):
 
         self.angle_lifetime += delta
         # print(self.angle_lifetime)
+
+        if delta != 0:
+            for update_handler in self.update_handlers:
+                update_handler(self, delta)
 
         # Mg
         self.field_status = (raw & MSK_MAG_FIELD) >> SHFT_MAG_FIELD

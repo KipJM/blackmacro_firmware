@@ -79,4 +79,28 @@ BATTERY_TAPER_CURRENT     = const(1200 * 0.1          ) # HTP4056: 1.2A max char
 
 
 # === HID EMULATION ===
-HID_TIMEOUT = 10 # ms, max blocking time for hid send report
+HID_TIMEOUT = const(10) # ms, max blocking time for hid send report
+
+# === Keys ===
+# Names of keys
+K_LA1 = "LA1"
+K_LA2 = "LA2"
+K_LB1 = "LB1"
+K_LB2 = "LB2"
+K_LB3 = "LB3"
+K_LB4 = "LB4"
+K_LC1 = "LC1"
+K_LC2 = "LC2"
+K_LC3 = "LC3"
+K_LC4 = "LC4"
+K_LD1 = "LD1"
+K_LD2 = "LD2"
+K_LD3 = "LD3"
+K_LD4 = "LD4"
+K_LE1 = "LE1"
+K_LE2 = "LE2"
+K_RA1 = "RA1"
+K_RA2 = "RA2"
+K_RB1 = "RB1"
+K_RB2 = "RB2"
+K_RB3 = "RB3"

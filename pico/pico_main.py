@@ -10,8 +10,7 @@ import modules.dial_encoder as dial_encoder
 
 import reg_encoder
 from hardware_defs import *
-from hid_module import HIDModule
-from hid_modules.polled.keyboard import KeyboardHID
+from hid_modules import speed_editor
 from module import SysModule
 
 
@@ -30,8 +29,11 @@ async def main():
     led_controller = led.LEDController(
         layers=[
             led.RainbowGenerator(),
-            brightness_control,
-            led.KeyImmediateVisualizationFX((99999, 99999, 99999)), # yes you can have hdr lol its python datatypes are a myth
+        ],
+        sys_layers=[
+            # led.KeyImmediateVisualizationFX((99999, 99999, 99999)), # yes you can have hdr lol its python datatypes are a myth
+            led.KeyFadeVisualizationFX((255, 255, 255), 1),
+            brightness_control
         ]
     )
     modules.append(led_controller)
@@ -80,10 +82,21 @@ async def main():
     # # for hid_mod in hid_modules: # this hangs pico, removed
     # #     await hid_mod.init_hid()
 
+    # === HID EMULATION INIT (DAVINCI) ===
+    editor = speed_editor.SpeedEditorHID()
+
+    mag_enc.register_update_handler(editor.dial_update)
+    bat_monitor.register_update_handler(editor.battery_update)
+    bat_charger.register_update_handler(editor.charger_update)
+    key_controller.register_update_callback(editor.key_update)
+
+    led_controller.layers.append(speed_editor.SpeedEditorLEDFX(editor.led_lookup, (125, 0, 0)))
+
     # ==============================================================
 
     # Prevent main loop from exiting
     for module in modules:
         await module.loop
+
 
 asyncio.run(main())
