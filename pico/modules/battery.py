@@ -12,7 +12,7 @@ from hardware_defs import *
 
 # TP4056 charge pin monitor
 class BatteryCharger(SysModule, Subscribable):
-    def __init__(self, delta: float = 1.0):
+    def __init__(self, delta: float = 5000):
         super().__init__(delta)
         super().init_subscribable()
 
@@ -31,8 +31,8 @@ class BatteryCharger(SysModule, Subscribable):
         self.is_usb_connected = bool(self.vbus_detect.value())
         self.is_charging = not bool(self.charge_signal.value())
 
-        if self.is_usb_connected != is_usb_connected_past or self.is_charging != is_charging_past:
-            self.notify_update_handlers()
+
+        self.notify_update_handlers()
 
     def get_is_usb_connected(self):
         return self.is_usb_connected
@@ -43,7 +43,7 @@ class BatteryCharger(SysModule, Subscribable):
 
 # TI battery fuel gauge controller
 class BatteryMonitor(SysModule, Subscribable):
-    def __init__(self, i2c: I2C, delta: float = 5.0):
+    def __init__(self, i2c: I2C, delta: int = 10000):
         super().__init__(delta)
         super().init_subscribable()
 
@@ -98,6 +98,6 @@ class BatteryMonitor(SysModule, Subscribable):
         # DEBUG
         print(f"BAT: SOC: {self.soc}%, Current: {self.current/1000}A, Power: {self.power/1000}W, Estimated TTL: {self.estimated_ttl}")
 
-        if past_soc != self.soc:
-            self.notify_update_handlers()
+
+        self.notify_update_handlers()
 

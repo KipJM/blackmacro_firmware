@@ -14,7 +14,7 @@ class BatteryModule(SpeedEditorModule):
         self.k = interface
 
     def change_battery_info(self, new_battery_level: int, new_charge_state: bool):
-        self.is_charging = new_battery_level
+        self.battery_level = new_battery_level
         self.is_charging = new_charge_state
 
         report_id, data = self.get_report_data()
@@ -27,7 +27,7 @@ class BatteryModule(SpeedEditorModule):
         self.change_battery_info(self.battery_level, new_charge_state)
 
     def get_report_data(self) -> tuple[int, bytearray]:
-        print("Get battery level")
+        # print("Get battery level")
         return self.input_id, bytearray(struct.pack("<BB", int(self.is_charging), self.battery_level))
 
     def get_input_report(self):

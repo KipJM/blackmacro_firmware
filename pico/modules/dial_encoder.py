@@ -6,7 +6,7 @@ from module import SysModule
 
 
 class DialEncoder(SysModule):
-    def __init__(self, delta:float = 0.001):
+    def __init__(self, delta: int = 1):
         super().__init__(delta)
         self.sck = Pin(P_MAG_CLK, Pin.OUT)
         self.miso = Pin(P_MAG_DO, Pin.IN)

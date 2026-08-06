@@ -13,8 +13,9 @@ from modules.led import LEDLayer
 # WARN: THIS IS VERY MUCH DIFFERENT THAN OTHER HID DEVICES.
 # SPEED EDITOR MODE CAN ONLY BE USED ON ITS OWN
 class SpeedEditorHID:
-    def __init__(self):
+    def __init__(self, battery_soc: int):
         self.interface = init_speed_editor()
+        self.interface.battery.battery_level = battery_soc
         self.keycode_translation = SpeedEditorKeyTranslation({
                 K_LA1: SKey.IN,
                 K_LA2: SKey.OUT,

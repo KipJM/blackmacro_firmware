@@ -142,7 +142,11 @@ class HIDInterface(Interface):
             machine.idle()
         if not self.is_open():
             return False
-        self.submit_xfer(self._int_ep, report_data)
+        try:
+            self.submit_xfer(self._int_ep, report_data)
+        except Exception as e:
+            print("submit_xfer error:", e)
+            return False
         return True
 
     def desc_cfg(self, desc, itf_num, ep_num, strs):

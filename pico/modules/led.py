@@ -87,9 +87,10 @@ class KeyImmediateVisualizationFX(LEDLayer):
         return data
 
 class KeyFadeVisualizationFX(LEDLayer):
-    def __init__(self, press_color: tuple[int, int, int], fade_s: float):
+    def __init__(self, press_color: tuple[int, int, int], alpha: float, fade_s: float):
         super().__init__()
         self.press_color: tuple[int, int, int] = press_color
+        self.alpha = alpha
         self.fade_s: float = fade_s
 
         self.timers: dict[int, float] = {}
@@ -102,7 +103,7 @@ class KeyFadeVisualizationFX(LEDLayer):
             if self.key_lookup(idx).is_pressed():
                 self.timers[idx] = self.fade_s
 
-            p = self.timers[idx] / self.fade_s
+            p = self.timers[idx] / self.fade_s * self.alpha
 
             data[idx] = tuple_int(tuple_add(tuple_mult(self.press_color, p), tuple_mult(rgb, 1-p)))
 
@@ -125,6 +126,7 @@ class BrightnessControlFX(LEDLayer):
         self.brightness = brightness
         self.gamma = gamma
         self.clamp = clamp
+        self.change_brightness_gamma(brightness) # yeah this architecture sucks but whatever make the constructor gamma corrected
 
     def change_brightness_gamma(self, value: float):
         self.brightness = (value**self.gamma) * (1 ** -self.gamma)
@@ -143,7 +145,7 @@ class BrightnessControlFX(LEDLayer):
 # =====
 
 class LEDController(SysModule):
-    def __init__(self, delta: float = 0.02, layers=None, sys_layers=None):
+    def __init__(self, delta: int = 17, layers=None, sys_layers=None): # 60fps
         """
 
         :param delta:
@@ -164,9 +166,9 @@ class LEDController(SysModule):
         data: list[tuple[int, int, int]] = [(0,0,0) for i in range(hardware_defs.COUNT_LED)]
 
         for layer in self.layers:
-            data = layer.process(data, self.delta)
+            data = layer.process(data, self.delta / 1000)
         for layer in self.sys_layers:
-            data = layer.process(data, self.delta)
+            data = layer.process(data, self.delta / 1000)
 
         # clamp to max brightness :(
         data = [(min(255, pix[0]), min(255, pix[1]), min(255, pix[2])) for pix in data]

@@ -33,7 +33,7 @@ class SpeedEditorJogConstant:
 	DEADZERO_MIN = -300
 	DEADZERO_MAX = 300
 
-	FINE_MULTIPLIER = 6 # half turn = one frame
+	FINE_MULTIPLIER = 12 # quarter turn = one frame
 
 # Key Presses are reported in Input Report ID 4 as an array of 6 LE16 keycodes
 # that are currently being held down. 0x0000 is no key. No auto-repeat, no hw
@@ -110,7 +110,7 @@ class SpeedEditorKey:
 		("TRANS DUR / SET", TRANS_DUR),
 		("CUT", CUT),
 		("DIS", DIS),
-		("SMTH_CUT", SMTH_CUT),
+		("SMTH CUT", SMTH_CUT),
 
 		("ESC / UNDO", ESC),
 		("SYNC BIN", SYNC_BIN),
@@ -172,24 +172,24 @@ class SpeedEditorLed:
 	AUDIO_ONLY	= (1 << 17)
 	
 	name_dict = OrderedDict([
-		(CLOSE_UP	, "CLOSE_UP"	),
-		(CUT		, "CUT"			),
-		(DIS		, "DIS"			),
-		(SMTH_CUT	, "SMTH_CUT"	),
-		(TRANS	 	, "TRANS"		),
-		(SNAP		, "SNAP"		),
-		(CAM7		, "CAM7"		),
-		(CAM8		, "CAM8"		),
-		(CAM9		, "CAM9"		),
-		(LIVE_OWR	, "LIVE_OWR"	),
-		(CAM4		, "CAM4"		),
-		(CAM5		, "CAM5"		),
-		(CAM6		, "CAM6"		),
-		(VIDEO_ONLY , "VIDEO_ONLY"	),
-		(CAM1		, "CAM1"		),
-		(CAM2		, "CAM2"		),
-		(CAM3		, "CAM3"		),
-		(AUDIO_ONLY , "AUDIO_ONLY"	)
+		(CLOSE_UP	, "CLOSE UP / YPOS"	),
+		(CUT		, "CUT"				),
+		(DIS		, "DIS"				),
+		(SMTH_CUT	, "SMTH_CUT"		),
+		(TRANS	 	, "TRANS / TITLE"	),
+		(SNAP		, "SNAP / RESIZE"	),
+		(CAM7		, "CAM 7"			),
+		(CAM8		, "CAM 8"			),
+		(CAM9		, "CAM 9"			),
+		(LIVE_OWR	, "LIVE OWR / RND"	),
+		(CAM4		, "CAM 4"			),
+		(CAM5		, "CAM 5"			),
+		(CAM6		, "CAM 6"			),
+		(VIDEO_ONLY , "VIDEO ONLY"		),
+		(CAM1		, "CAM 1"			),
+		(CAM2		, "CAM 2"			),
+		(CAM3		, "CAM 3"			),
+		(AUDIO_ONLY , "AUDIO ONLY"		)
 	])
 
 

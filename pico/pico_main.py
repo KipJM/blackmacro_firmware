@@ -24,15 +24,16 @@ async def main():
     key_controller = key.KeyMatrix()
     modules.append(key_controller)
 
-    brightness_control = led.BrightnessControlFX(0.1)
+    brightness_control = led.BrightnessControlFX(0.4)
 
     led_controller = led.LEDController(
         layers=[
             led.RainbowGenerator(),
+            led.BrightnessControlFX(0.5)
         ],
         sys_layers=[
             # led.KeyImmediateVisualizationFX((99999, 99999, 99999)), # yes you can have hdr lol its python datatypes are a myth
-            led.KeyFadeVisualizationFX((255, 255, 255), 1),
+            led.KeyFadeVisualizationFX((255, 255, 255), .3, .1),
             brightness_control
         ]
     )
@@ -83,7 +84,7 @@ async def main():
     # #     await hid_mod.init_hid()
 
     # === HID EMULATION INIT (DAVINCI) ===
-    editor = speed_editor.SpeedEditorHID()
+    editor = speed_editor.SpeedEditorHID(bat_monitor.soc)
 
     mag_enc.register_update_handler(editor.dial_update)
     bat_monitor.register_update_handler(editor.battery_update)

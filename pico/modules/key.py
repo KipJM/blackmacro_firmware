@@ -53,7 +53,7 @@ MT_ROW_DEMUL: dict[int, tuple[bool, bool, bool]] = {
 
 
 class KeyMatrix(SysModule):
-    def __init__(self, delta: float = 0.001):
+    def __init__(self, delta: int = 1): #
         super().__init__(delta)
         self.matrix: dict[str, Button] = DEF_KEYS.copy()
         self.matrix.update(DEF_ENCODERS) # add encoders, this is bad but should work

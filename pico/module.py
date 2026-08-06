@@ -3,7 +3,7 @@ import sys
 
 
 class SysModule:
-    def __init__(self, delta: float):
+    def __init__(self, delta: int):
         self.delta = delta
         self.loop = asyncio.create_task(self.update_loop())
 
@@ -20,7 +20,7 @@ class SysModule:
                 print("====================================")
                 print()
                 return
-            await asyncio.sleep(self.delta)
+            await asyncio.sleep_ms(self.delta)
 
     async def update(self):
         pass
@@ -33,5 +33,6 @@ class Subscribable:
         self.update_handlers.append(handler)
 
     def notify_update_handlers(self):
+        # print(self.update_handlers)
         for handler in self.update_handlers:
             handler(self)
