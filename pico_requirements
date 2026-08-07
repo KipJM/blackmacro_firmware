@@ -1,2 +1,5 @@
 colorsys
 https://github.com/miketeachman/micropython-rotary
+datetime
+traceback
+https://github.com/KipJM/BQ27427_micropython
