@@ -17,6 +17,9 @@ For more information, see:
 
 You're also strictly forbidden from using this project to train "Generative AI" analytical machine learning models (e.g. LLMs).
 
+I am not releasing this project under any open-source license at this moment because it is unfinished. When I feel the project's 
+mature enough to receive contributions, I might switch it to a strong copyleft license like AGPLv3. But for now, All Rights Reserved.
+
 # Running
 I currently do not provide precompiled .uf2 images for this project. If you have a blackmacro v2 keyboard, do this:
 - Flash the latest micropython firmware onto the pico.
