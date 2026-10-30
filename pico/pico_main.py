@@ -10,7 +10,9 @@ import modules.dial_encoder as dial_encoder
 
 import reg_encoder
 from hardware_defs import *
+from hid_module import HIDModule
 from hid_modules import speed_editor
+from hid_modules.regular.gamepad import GamepadHID
 from module import SysModule
 
 
@@ -24,12 +26,13 @@ async def main():
     key_controller = key.KeyMatrix()
     modules.append(key_controller)
 
-    brightness_control = led.BrightnessControlFX(0.4)
+    brightness_control = led.BrightnessControlFX(0.6)
 
     led_controller = led.LEDController(
         layers=[
             led.RainbowGenerator(),
             led.BrightnessControlFX(0.5)
+            # led.ColorGenerator((255, 255, 255))
         ],
         sys_layers=[
             # led.KeyImmediateVisualizationFX((99999, 99999, 99999)), # yes you can have hdr lol its python datatypes are a myth
@@ -73,27 +76,28 @@ async def main():
         print(":O")
         return
 
-    # # # === HID EMULATION INIT (Non-davinci) ===
-    # hid_modules: list[HIDModule] = [
-    #     KeyboardHID(key_controller),
-    # ]
-    # # Init usb, btw i hate python syntax so much what is this * shit man
-    # usb.device.get().init(*[mod.get_interface() for mod in hid_modules], builtin_driver=True)
+    # === HID EMULATION INIT (Non-davinci) ===
+    hid_modules: list[HIDModule] = [
+        # KeyboardHID(key_controller),
+        GamepadHID(key_controller, mag_enc)
+    ]
+    # Init usb, btw i hate python syntax so much what is this * shit man
+    usb.device.get().init(*[mod.get_interface() for mod in hid_modules], builtin_driver=True)
 
-    # # for hid_mod in hid_modules: # this hangs pico, removed
-    # #     await hid_mod.init_hid()
+    # for hid_mod in hid_modules: # this hangs pico, removed
+    #     await hid_mod.init_hid()
 
-    # === HID EMULATION INIT (DAVINCI) ===
-    editor = speed_editor.SpeedEditorHID(bat_monitor.soc)
+    # # === HID EMULATION INIT (DAVINCI) ===
+    # editor = speed_editor.SpeedEditorHID(bat_monitor.soc)
+    #
+    # mag_enc.register_update_handler(editor.dial_update)
+    # bat_monitor.register_update_handler(editor.battery_update)
+    # bat_charger.register_update_handler(editor.charger_update)
+    # key_controller.register_update_callback(editor.key_update)
+    #
+    # led_controller.layers.append(speed_editor.SpeedEditorLEDFX(editor.led_lookup, (125, 0, 0)))
 
-    mag_enc.register_update_handler(editor.dial_update)
-    bat_monitor.register_update_handler(editor.battery_update)
-    bat_charger.register_update_handler(editor.charger_update)
-    key_controller.register_update_callback(editor.key_update)
-
-    led_controller.layers.append(speed_editor.SpeedEditorLEDFX(editor.led_lookup, (125, 0, 0)))
-
-    # ==============================================================
+    # =============================================================
 
     # Prevent main loop from exiting
     for module in modules:
