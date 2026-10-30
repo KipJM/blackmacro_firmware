@@ -4,7 +4,6 @@
 # e.g.: Rainbow background generator -> key state visualization -> key press visualization -> user brightness control -> powersave blackout => output
 import asyncio
 import colorsys
-
 import neopixel
 import machine
 import hardware_defs
@@ -117,15 +116,15 @@ class KeyFadeVisualizationFX(LEDLayer):
 class BrightnessControlFX(LEDLayer):
     def __init__(self, brightness: float, gamma: float = 4, clamp: bool = True):
         """
-        :param brightness: If clamp == True, this is the maximum brightness (255 * brightness) max component of an led can be. Values will be scaled proportionally.
-        Otherwise, the leds\' values will simply be multiplied by this factor.
+        Converts RGB TO HSV, then scales brightness based on factor, then converts back to RGB.
+        :param brightness: If clamp == True, max V = 1.
+        Otherwise, the leds\' brightness will simply be multiplied by this factor.
         :param gamma: Default 4. Defines curve for perceived brightness adjustment.
-        :param clamp:
+        :param clamp: UNUSED. DEPRECATED AFTER CHANGING TO HSV
         """
         super().__init__()
         self.brightness = brightness
         self.gamma = gamma
-        self.clamp = clamp
         self.change_brightness_gamma(brightness) # yeah this architecture sucks but whatever make the constructor gamma corrected
 
     def change_brightness_gamma(self, value: float):
@@ -134,12 +133,18 @@ class BrightnessControlFX(LEDLayer):
     def process(self, data: list[tuple[int, int, int]], delta: float) -> list[tuple[int, int, int]]:
         # print(self.brightness)
         for idx, led in enumerate(data):
-            if self.clamp:
-                factor = (self.brightness * 255) / max(led[0], led[1], led[2])
-                data[idx] = (int(led[0] * factor), int(led[1] * factor),
-                             int(led[2] * factor))
-            else:
-                data[idx] = (int(led[0] * self.brightness), int(led[1] * self.brightness), int(led[2] * self.brightness))
+            r, g, b = led
+            r /= 255.0
+            g /= 255.0
+            b /= 255.0
+
+            h, s, v = colorsys.rgb_to_hsv(r, g, b)
+            v *= self.brightness
+
+            r1, g1, b1 = colorsys.hsv_to_rgb(h, s, v)
+
+            data[idx] = (int(r1*255), int(g1*255), int(b1*255))
+            # print(f"{led} -> {(r,g,b)} -> {(h,s,v)} -> {r1,g1,b1} -> {data[idx]}") # DEBUG
 
         return data
 # =====
