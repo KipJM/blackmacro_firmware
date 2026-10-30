@@ -62,7 +62,11 @@ class DialEncoder(SysModule):
             delta += 360
 
         self.angle_lifetime += delta
+        # print(self.angle_raw)
+        # print(self.angle_adjusted)
         # print(self.angle_lifetime)
+        # print() # DEBUG
+
 
         if delta != 0:
             for update_handler in self.update_handlers:

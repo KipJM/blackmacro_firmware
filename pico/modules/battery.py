@@ -60,8 +60,14 @@ class BatteryMonitor(SysModule, Subscribable):
 
 
     async def battery_init(self):
-        if not self.battery.begin():
-            raise IOError("Error: Unable to communicate with BQ27427")
+        try:
+            if not self.battery.begin():
+                print("UNABLE TO COMM WITH BQ27427")
+                raise OSError("Error: Unable to communicate with BQ27427")
+        except OSError:
+            print("Error: Unable to communicate with BQ27427. Continuing incase battery is fully dead.")
+            return
+
         # Gauge config. This would probably be stored in its ROM? If the monitor is sealed,
         # we assume the data has already been written to prevent wearing out the rom
         if not self.battery.is_sealed():
@@ -80,20 +86,32 @@ class BatteryMonitor(SysModule, Subscribable):
 
     async def update(self):
         past_soc = self.soc
-        self.soc = self.battery.get_soc(SocMeasure.FILTERED)
-        self.soh = self.battery.get_soh(SohMeasure.PERCENT)
-        self.current = self.battery.get_current(CurrentMeasure.AVG)
-        self.power = self.battery.get_avg_power()
 
         try:
-            if self.current <= 0:
-                self.estimated_ttl = timedelta(hours = float(await self.battery.get_capacity(CapacityMeasure.REMAIN)) / -self.current)
-            else:
-                # When charging, change to very rough estimate on time to full
-                self.estimated_ttl = timedelta(hours = float(await self.battery.get_capacity(CapacityMeasure.FULL) -
-                                                             await self.battery.get_capacity(CapacityMeasure.REMAIN)) / self.current)
-        except ZeroDivisionError:
-            self.estimated_ttl = timedelta(days = 365)
+            self.soc = self.battery.get_soc(SocMeasure.FILTERED)
+            self.soh = self.battery.get_soh(SohMeasure.PERCENT)
+            self.current = self.battery.get_current(CurrentMeasure.AVG)
+            self.power = self.battery.get_avg_power()
+
+            try:
+                if self.current <= 0:
+                    self.estimated_ttl = timedelta(
+                        hours=float(await self.battery.get_capacity(CapacityMeasure.REMAIN)) / -self.current)
+                else:
+                    # When charging, change to very rough estimate on time to full
+                    self.estimated_ttl = timedelta(hours=float(await self.battery.get_capacity(CapacityMeasure.FULL) -
+                                                               await self.battery.get_capacity(
+                                                                   CapacityMeasure.REMAIN)) / self.current)
+            except ZeroDivisionError:
+                self.estimated_ttl = timedelta(days=365)
+
+        except OSError:
+            # B27427 dead (likely battery fully dead) failsafe
+            self.soc = 0
+            self.soh = 0
+            self.current = 0
+            self.power = 0
+            self.estimated_ttl = timedelta(days=365)
 
         # DEBUG
         print(f"BAT: SOC: {self.soc}%, Current: {self.current/1000}A, Power: {self.power/1000}W, Estimated TTL: {self.estimated_ttl}")
