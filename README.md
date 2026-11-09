@@ -17,8 +17,9 @@ For more information, see:
 
 You're also strictly forbidden from using this project to train "Generative AI" analytical machine learning models (e.g. LLMs).
 
-I am not releasing this project under any open-source license at this moment because it is unfinished. When I feel the project's 
-mature enough to receive contributions, I might switch it to a strong copyleft license like AGPLv3. But for now, All Rights Reserved.
+The firmware is currently "source available", but not under any open-source license. When I feel the project's 
+mature enough to receive contributions, I may switch it to a strong copyleft license like AGPLv3.
+For now, **All Rights Reserved**.
 
 # Running
 I currently do not provide precompiled .uf2 images for this project. If you have a blackmacro v2 keyboard, do this:
@@ -26,6 +27,8 @@ I currently do not provide precompiled .uf2 images for this project. If you have
 - Connect your computer to the pico's REPL over usb.
 - Copy everything from this project's pico folder into the pico's filesystem.
 - Power cycle the keyboard.
+
+Beware that the project is still in development and is unstable.
 
 # Davinci Resolve Support
 This firmware includes native compatibility with the Davinci Resolve video editing software. For more information on how
